@@ -71,21 +71,20 @@ const Notice = styled.div`
 const ErrorMsg = styled.p`color:${ERR};font-size:.9rem;margin-bottom:1rem;text-align:center;`;
 
 /* ---------- lazy overlay spinner ---------- */
-const LazyOverlay = lazy(() => Promise.resolve({
-  default(){
-    const oSpin = keyframes`to{transform:rotate(360deg)}`;
-    const Overlay=styled.div`
-      position:fixed;inset:0;background:rgba(255,255,255,.65);
-      backdrop-filter:blur(6px);display:grid;place-items:center;z-index:5000;
-    `;
-    const Loader=styled.div`
-      width:72px;height:72px;border:6px solid ${ACCENT};
-      border-top-color:transparent;border-radius:50%;
-      animation:${oSpin} 1s linear infinite;
-    `;
-    return(<Overlay><Loader/></Overlay>);
-  }
-}));
+const LazyOverlay = lazy(() => {
+  const oSpin = keyframes`to{transform:rotate(360deg)}`;
+  const Overlay = styled.div`
+    position:fixed;inset:0;background:rgba(255,255,255,.65);
+    backdrop-filter:blur(6px);display:grid;place-items:center;z-index:5000;
+  `;
+  const Loader = styled.div`
+    width:72px;height:72px;border:6px solid ${ACCENT};
+    border-top-color:transparent;border-radius:50%;
+    animation:${oSpin} 1s linear infinite;
+  `;
+  const OverlayComponent = () => <Overlay><Loader/></Overlay>;
+  return Promise.resolve({ default: OverlayComponent });
+});
 
 /* ========================================== */
 export default function ForgotPage() {

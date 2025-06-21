@@ -105,7 +105,7 @@ export default function AccountLayout() {
       <Wrapper>
         <Sidebar open={open}>
           <h2 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>
-            {user?.name || 'My Account'}
+            {user?.email || 'My Account'}
           </h2>
           <LinkItem to="/account" end onClick={() => setOpen(false)}>
             <FiUser /> Profile

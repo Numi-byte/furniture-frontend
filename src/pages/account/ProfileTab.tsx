@@ -55,7 +55,7 @@ const Table = styled.table`
 export default function ProfileTab() {
   const { user, token } = useAuth();
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(user?.name || '');
+  const [name, setName] = useState(user?.email || '');
   const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function ProfileTab() {
       <h1 style={{ fontSize: '1.8rem', margin: 0 }}>Profile</h1>
 
       <Card>
-        <Avatar src={user?.avatarUrl} />
+        <Avatar src={undefined} />
         {editing ? (
           <>
             <Input value={name} onChange={e => setName(e.target.value)} />
@@ -89,7 +89,7 @@ export default function ProfileTab() {
           </>
         ) : (
           <>
-            <p><strong>Name:</strong> {user?.name}</p>
+            <p><strong>Name:</strong> {user?.email}</p>
             <p><strong>Email:</strong> {user?.email}</p>
             <Button primary onClick={() => setEditing(true)}>Edit Profile</Button>
           </>

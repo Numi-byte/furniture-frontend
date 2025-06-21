@@ -171,7 +171,7 @@ export default function ProductDetailPage() {
           </Button>
         </InfoBox>
       </Hero>
-      <ShippingCalculator weightKg={prod.weightKg} orderTotal={prod.price} />
+      <ShippingCalculator />
       <Notice>
         <strong>Important information for EU customers:</strong>
         <ul style={{ marginTop: '0.8rem', paddingLeft: '1.2rem' }}>

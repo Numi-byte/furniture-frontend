@@ -10,6 +10,7 @@ import {
   FiXCircle,
   FiX
 } from 'react-icons/fi';
+import type { JSX } from 'react';
 
 /* ───── styled components ───── */
 const Container = styled.div`
