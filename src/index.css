@@ -1,0 +1,113 @@
+/* 01 ·  Design Tokens  ───────────────────────────── */
+:root {
+  /* neutrals */
+  --gray-50 : #fafafa;
+  --gray-100: #f2f2f2;
+  --gray-200: #e5e5e5;
+  --gray-300: #d1d1d1;
+  --gray-600: #737373;
+  --gray-900: #171717;
+
+  /* brand accent */
+  --accent  : #0071e3;           /* Apple‑blue‑style */
+
+  /* surfaces / radius / shadows */
+  --surface   : #ffffff;
+  --radius-sm : 8px;
+  --radius-md : 16px;
+  --shadow-sm : 0 2px 4px rgba(0,0,0,.06);
+  --shadow-md : 0 10px 20px rgba(0,0,0,.08);
+
+  /* layout */
+  --max-w : 1280px;
+}
+
+/* 02 ·  Modern Reset & Base Styles  ──────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  height:100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+               'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  -webkit-font-smoothing: antialiased;
+}
+img,svg{display:block;max-width:100%}
+a      {text-decoration:none;color:inherit}
+
+/* smooth scrolling */
+html{scroll-behavior:smooth}
+
+/* 03 ·  Global Utility Classes  ──────────────────── */
+.container{
+  width: 100%;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:.9rem 2rem;border-radius:var(--radius-sm);font-weight:600;cursor:pointer;
+  border:none;transition:background .25s,box-shadow .25s;
+}
+.btn-primary{
+  background: var(--accent);color:#fff;
+}
+.btn-primary:hover{
+  box-shadow: 0 4px 10px rgba(0,113,227,.28);
+}
+.section-title{
+  font-size:2rem;font-weight:600;margin-bottom:1.5rem;
+}
+
+/* 04 ·  Card 2.0  ────────────────────────────────── */
+.card{
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .25s, transform .25s;
+}
+.card:hover{
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 05 ·  Product Grid  ────────────────────────────── */
+.product-grid{
+  display:grid;gap:2rem;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+}
+
+/* 06 ·  Typography Tweaks  ───────────────────────── */
+h1,h2,h3,h4{
+  font-weight:600;letter-spacing:-.02em;color:var(--gray-900);
+}
+body,button,input,textarea{font-size:16px;line-height:1.55}
+
+/* 07 ·  Small Form Reset  ────────────────────────── */
+input,textarea,select{
+  border:1px solid var(--gray-200);
+  border-radius:var(--radius-sm);
+  padding:.75rem 1rem;
+  background:#fff;color:var(--gray-900);
+  transition:border-color .2s;
+}
+input:focus,textarea:focus,select:focus{
+  outline:none;border-color:var(--accent);
+}
+
+/* 08 ·  Footer  ──────────────────────────────────── */
+footer{
+  margin-top:4rem;padding:3rem 0;background:var(--gray-100);
+  text-align:center;font-size:.9rem;color:var(--gray-600);
+}
+
+/* 09 ·  Dark Mode (optional)  ────────────────────── */
+/* Replace :root with below block if you add a toggle */
+:root.dark {
+  --surface:#1c1c1e;
+  --gray-50:#111;
+  --gray-100:#1a1a1c;
+  --gray-900:#f5f5f7;
+  --accent:#0a84ff;
+}
