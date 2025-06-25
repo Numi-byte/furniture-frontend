@@ -126,7 +126,7 @@ export default function Navbar() {
     <>
       <Bar>
         <Logo to="/">
-          Grande<span>&amp;Co</span>
+          Casa<span> Neuvo</span>
         </Logo>
 
         {/* mobile burger */}
