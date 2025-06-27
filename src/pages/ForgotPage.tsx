@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../api';
 
 /* ---------- palette ---------- */
 const ACCENT = '#0071e3';
@@ -101,7 +102,7 @@ export default function ForgotPage() {
     if (!ready) return;
     setBusy(true); setErr(null); setMsg(null);
     try {
-      const res = await fetch('http://localhost:3000/auth/forgot-password', {
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

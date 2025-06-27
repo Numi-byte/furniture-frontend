@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/AuthContext';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../../api'; 
 
 const Holder = styled.div`
   display: flex;
@@ -58,11 +59,22 @@ export default function ProfileTab() {
   const [name, setName] = useState(user?.email || '');
   const [orders, setOrders] = useState<any[]>([]);
 
-  useEffect(() => {
-    fetch('http://localhost:3000/customer/orders', {
-      headers: { Authorization: `Bearer ${token}` }
-    }).then(r => r.json()).then(setOrders).catch(() => {});
-  }, [token]);
+useEffect(() => {
+  if (!token) return;
+
+  fetch(`${API_BASE}/customer/orders`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to load orders');
+      return res.json();
+    })
+    .then(setOrders)
+    .catch(err => {
+      console.error(err);
+      toast.error('Could not fetch your orders');
+    });
+}, [token]);
 
   const save = async () => {
     try {

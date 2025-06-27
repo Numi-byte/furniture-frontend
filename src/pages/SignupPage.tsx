@@ -6,6 +6,7 @@ import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../api';
 
 /* ---- palette ---- */
 const ACCENT = '#0071e3';
@@ -107,7 +108,7 @@ export default function SignupPage(){
   const submit=async(e:React.FormEvent)=>{
     e.preventDefault(); if(!ready) return; setBusy(true);
     try{
-      const res = await fetch('http://localhost:3000/auth/signup',{
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({name:form.name,email:form.email,password:form.pass})
       });

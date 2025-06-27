@@ -1,6 +1,7 @@
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import styled from 'styled-components';
+import { API_BASE } from '../api';
 
 const Wrapper = styled.div`
   min-height: 90vh;
@@ -55,7 +56,7 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setErr(null);
     try{
-      const res = await fetch('http://localhost:3000/auth/reset-password',{
+      const res = await fetch(`${API_BASE}/auth/reset-password`, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ token, newPassword: pass })

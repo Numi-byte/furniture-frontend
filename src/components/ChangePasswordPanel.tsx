@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../api';
 
 const Panel = styled.div`
   max-width: 420px;
@@ -29,25 +30,37 @@ export default function ChangePasswordPanel() {
 
   const h = (e:any)=>set({ ...form, [e.target.name]: e.target.value });
 
-  const submit = async(e:any)=>{
-    e.preventDefault();
-    if(form.neo !== form.neo2){ toast.error('Passwords mismatch'); return; }
-    setLoading(true);
-    try{
-      const res = await fetch('http://localhost:3000/auth/change-password',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          Authorization:`Bearer ${token}`
-        },
-        body: JSON.stringify({ oldPassword: form.old, newPassword: form.neo })
-      });
-      if(!res.ok) throw new Error('Wrong old password');
-      toast.success('Password updated');
-      set({ old:'', neo:'', neo2:'' });
-    }catch(e:any){ toast.error(e.message || 'Failed'); }
-    finally{ setLoading(false); }
-  };
+const submit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (form.neo !== form.neo2) {
+    toast.error('Passwords mismatch');
+    return;
+  }
+  setLoading(true);
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/change-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        oldPassword: form.old,
+        newPassword: form.neo,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Wrong old password');
+
+    toast.success('Password updated');
+    set({ old: '', neo: '', neo2: '' });
+  } catch (err: any) {
+    toast.error(err.message || 'Failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Panel>

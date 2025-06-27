@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../contexts/AuthContext';
+import { API_BASE } from '../../api';
 
 /* ───── styled ───── */
 const Overlay = styled(motion.div)`
@@ -97,8 +98,8 @@ export default function ProductFormModal({
     setLoading(true);
     const method = existing ? 'PUT' : 'POST';
     const url = existing
-      ? `http://localhost:3000/products/${existing.id}`
-      : 'http://localhost:3000/products';
+  ? `${API_BASE}/products/${existing.id}`
+  : `${API_BASE}/products`;
 
     try {
       const res = await fetch(url, {

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useCart } from '../contexts/CartContext';
 import toast from 'react-hot-toast';
 import ShippingCalculator from '../components/ShippingCalculator';
+import { API_BASE } from '../api';
 
 const Page = styled.div`
   padding: 4rem 1.5rem;
@@ -125,18 +126,21 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const { add } = useCart();
 
-  useEffect(() => {
-    fetch(`http://localhost:3000/products/${id}`)
-      .then(r => r.json())
-      .then(data => {
-        set(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        toast.error('Error loading product');
-        setLoading(false);
-      });
-  }, [id]);
+useEffect(() => {
+  fetch(`${API_BASE}/products/${id}`)
+    .then(r => {
+      if (!r.ok) throw new Error('Error loading product');
+      return r.json();
+    })
+    .then(data => {
+      set(data);
+      setLoading(false);
+    })
+    .catch(() => {
+      toast.error('Error loading product');
+      setLoading(false);
+    });
+}, [id]);
 
   if (loading) {
     return <Page><p>Loading…</p></Page>;

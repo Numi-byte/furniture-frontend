@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../api';
 
 /* ─────────── layout shells ─────────── */
 const Page = styled.div`
@@ -123,7 +124,7 @@ export default function CheckoutPage() {
     setPlacing(true);
 
     try {
-      const res = await fetch('http://localhost:3000/orders', {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({

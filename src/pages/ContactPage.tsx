@@ -7,6 +7,7 @@ import styled, { css, keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { FiChevronDown } from 'react-icons/fi';
+import { API_BASE } from '../api';
 
 /* ──────────────────────────────────────────────────────────
    Primitives
@@ -143,7 +144,11 @@ export default function ContactPage() {
 
     setSend(true);
     try{
-      const r = await fetch('http://localhost:3000/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(form)});
+      const r = await fetch(`${API_BASE}/contact`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(form),
+});
       if(!r.ok) throw new Error();
       toast.success('Message sent. We’ll reply soon!');
       setForm({name:'',email:'',message:''});

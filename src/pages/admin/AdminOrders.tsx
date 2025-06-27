@@ -9,6 +9,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiSearch } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../../api'; 
 
 /* ─── Types ──────────────────────────────────────────────── */
 interface OrderItem {
@@ -107,44 +108,68 @@ export default function AdminOrders() {
   const hdr = { Authorization: `Bearer ${token}` };
 
   /* fetch orders list */
-  useEffect(()=>{
-    fetch('http://localhost:3000/orders',{headers:hdr})
-      .then(r=>r.json())
-      .then(setOrders)
-      .catch(()=>toast.error('Failed loading orders'))
-      .finally(()=>setLoading(false));
-  },[token]);
+useEffect(() => {
+  fetch(`${API_BASE}/orders`, { headers: hdr })
+    .then(r => {
+      if (!r.ok) throw new Error('Failed loading orders');
+      return r.json();
+    })
+    .then(setOrders)
+    .catch(() => toast.error('Failed loading orders'))
+    .finally(() => setLoading(false));
+}, [token]);
 
-  /* fetch status history when drawer opens */
-  useEffect(()=>{
-    if(sel){
-      setHist([]);
-      setHistLoading(true);
-      fetch(`http://localhost:3000/orders/${sel.id}/status-history`,{headers:hdr})
-        .then(r=>r.json())
-        .then(setHist)
-        .catch(()=>toast.error('History error'))
-        .finally(()=>setHistLoading(false));
-    }
-  },[sel]);
+/* fetch status history when drawer opens */
+useEffect(() => {
+  if (!sel) return;
+  setHist([]);
+  setHistLoading(true);
+
+  fetch(`${API_BASE}/orders/${sel.id}/status-history`, { headers: hdr })
+    .then(r => {
+      if (!r.ok) throw new Error('History fetch failed');
+      return r.json();
+    })
+    .then(setHist)
+    .catch(() => toast.error('History error'))
+    .finally(() => setHistLoading(false));
+}, [sel]);
 
   /* status update */
-  const performUpdate = async(id:number,newStatus:string)=>{
-    try{
-      const res = await fetch(`http://localhost:3000/orders/${id}/status`,{
-        method:'PUT',headers:{'Content-Type':'application/json',...hdr},
-        body:JSON.stringify({status:newStatus})
+const performUpdate = async (id: number, newStatus: string) => {
+  try {
+    const res = await fetch(
+      `${API_BASE}/orders/${id}/status`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...hdr,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      }
+    );
+    if (!res.ok) throw new Error();
+
+    const updated: Order = await res.json();
+    toast.success(`Order #${id} → ${newStatus}`);
+    setOrders(prev => prev.map(o => (o.id === id ? updated : o)));
+    setSel(updated);
+
+    // refresh history
+    fetch(`${API_BASE}/orders/${id}/status-history`, {
+      headers: hdr,
+    })
+      .then(r => r.json())
+      .then(setHist)
+      .catch(err => {
+        console.error('Failed loading history', err);
+        toast.error('Could not refresh status history');
       });
-      if(!res.ok) throw new Error();
-      const updated:Order = await res.json();
-      toast.success(`Order #${id} → ${newStatus}`);
-      setOrders(prev=>prev.map(o=>o.id===id?updated:o));
-      setSel(updated);
-      // refresh history
-      fetch(`http://localhost:3000/orders/${id}/status-history`,{headers:hdr})
-        .then(r=>r.json()).then(setHist);
-    }catch{ toast.error('Update failed'); }
-  };
+  } catch {
+    toast.error('Update failed');
+  }
+};
 
   /* filter + search */
   const visible = orders.filter(o=>{

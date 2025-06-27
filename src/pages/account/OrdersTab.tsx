@@ -11,6 +11,8 @@ import {
   FiX
 } from 'react-icons/fi';
 import type { JSX } from 'react';
+import { API_BASE } from '../../api';  
+import { toast } from 'react-toastify';
 
 /* ───── styled components ───── */
 const Container = styled.div`
@@ -206,14 +208,22 @@ export default function OrdersTab() {
   const [filter, setFilter] = useState<Status | 'all'>('all');
   const [current, setCurrent] = useState<any | null>(null);
 
-  useEffect(() => {
-    fetch('http://localhost:3000/customer/orders', {
-      headers: { Authorization: `Bearer ${token}` },
+useEffect(() => {
+  if (!token) return;
+
+  fetch(`${API_BASE}/customer/orders`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((r) => {
+      if (!r.ok) throw new Error('Failed to load orders');
+      return r.json();
     })
-      .then((r) => r.json())
-      .then(setAll)
-      .catch(console.error);
-  }, [token]);
+    .then(setAll)
+    .catch((err) => {
+      console.error(err);
+      toast.error('Could not fetch your orders');
+    });
+}, [token]);
 
   const rows =
     filter === 'all'

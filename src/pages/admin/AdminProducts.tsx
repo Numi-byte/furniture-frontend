@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import ProductFormModal from './ProductFormModal';
 import toast from 'react-hot-toast';
+import { API_BASE } from '../../api'; 
 
 /* ───────── styled components ───────── */
 const H1 = styled.h1`font-size:2rem;margin-bottom:2rem;`;
@@ -55,44 +56,50 @@ export default function AdminProducts() {
 
   const hdr = { Authorization: `Bearer ${token}` };
 
-  const load = () => {
-    fetch('http://localhost:3000/products', { headers: hdr })
-      .then(r => r.json())
-      .then(setList)
-      .catch(() => toast.error('Load failed'));
-  };
+const load = () => {
+  fetch(`${API_BASE}/products`, { headers: hdr })
+    .then(res => {
+      if (!res.ok) throw new Error('Load failed');
+      return res.json();
+    })
+    .then(setList)
+    .catch(() => toast.error('Load failed'));
+};
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+useEffect(() => {
+  load();
+  // eslint-disable-next-line
+}, []);
 
-  const handleArchive = async () => {
-    if (!toArchive) return;
-    const r = await fetch(`http://localhost:3000/products/${toArchive.id}/archive`, {
-      method: 'PATCH',
-      headers: hdr
-    });
-    if (r.ok) {
-      toast.success('Product archived');
-      load();
-    } else {
-      toast.error('Archive failed');
-    }
-    setToArchive(undefined);
-  };
+const handleArchive = async () => {
+  if (!toArchive) return;
+  const res = await fetch(
+    `${API_BASE}/products/${toArchive.id}/archive`,
+    { method: 'PATCH', headers: hdr }
+  );
+  if (res.ok) {
+    toast.success('Product archived');
+    load();
+  } else {
+    toast.error('Archive failed');
+  }
+  setToArchive(undefined);
+};
 
-  const handleUnarchive = async () => {
-    if (!toUnarchive) return;
-    const r = await fetch(`http://localhost:3000/products/${toUnarchive.id}/unarchive`, {
-      method: 'PATCH',
-      headers: hdr
-    });
-    if (r.ok) {
-      toast.success('Product restored');
-      load();
-    } else {
-      toast.error('Unarchive failed');
-    }
-    setToUnarchive(undefined);
-  };
+const handleUnarchive = async () => {
+  if (!toUnarchive) return;
+  const res = await fetch(
+    `${API_BASE}/products/${toUnarchive.id}/unarchive`,
+    { method: 'PATCH', headers: hdr }
+  );
+  if (res.ok) {
+    toast.success('Product restored');
+    load();
+  } else {
+    toast.error('Unarchive failed');
+  }
+  setToUnarchive(undefined);
+};
 
   const activeProducts = list.filter(p => !p.archived);
   const archivedProducts = list.filter(p => p.archived);

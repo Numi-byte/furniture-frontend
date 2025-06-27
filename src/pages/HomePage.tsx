@@ -11,6 +11,8 @@ import styled, { keyframes } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { API_BASE } from '../api';
+import { toast } from 'react-toastify';
 
 /* ---- palette ---- */
 const ACCENT = '#0071e3';
@@ -77,11 +79,19 @@ export default function HomePage() {
   >([]);
 
   /* load 6 showcase products */
-  useEffect(() => {
-    fetch('http://localhost:3000/products?limit=6')
-      .then((r) => r.json())
-      .then(setProducts);
-  }, []);
+/* load 6 showcase products */
+useEffect(() => {
+  fetch(`${API_BASE}/products?limit=6`)
+    .then(r => {
+      if (!r.ok) throw new Error('Failed to load products');
+      return r.json();
+    })
+    .then(setProducts)
+    .catch(err => {
+      console.error(err);
+      toast.error('Could not load products');
+    });
+}, []);
 
   /* sentinel triggers Newsletter lazy‑load */
   const { ref: sentryRef, inView } = useInView({ rootMargin: '400px' });

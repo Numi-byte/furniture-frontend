@@ -7,6 +7,8 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   LineChart, Line, XAxis, YAxis, CartesianGrid
 } from 'recharts';
+import { API_BASE } from '../../api';
+import { toast } from 'react-toastify';
 
 /* ───── styled components ───── */
 const Section = styled.section`
@@ -94,31 +96,53 @@ useEffect(() => {
   const headers = { Authorization: `Bearer ${token}` };
 
   Promise.all([
-    fetch('http://localhost:3000/admin/orders/status-count', { headers }).then(r => r.json()).then(setStatus),
-    fetch('http://localhost:3000/admin/orders/revenue-by-day', { headers }).then(r => r.json()).then(setDay),
-    fetch('http://localhost:3000/admin/orders/top-products', { headers }).then(r => r.json()).then(setTop),
-    fetch('http://localhost:3000/admin/orders/revenue-summary', { headers }).then(r => r.json()).then(setSummary),
-    fetch('http://localhost:3000/admin/visitors', { headers }).then(r => r.json()).then(setVisitors),
-    fetch('http://localhost:3000/subscribers', { headers }).then(r => r.json()).then(setSubscribers),
+    fetch(`${API_BASE}/admin/orders/status-count`, { headers })
+      .then(r => r.json()).then(setStatus),
+
+    fetch(`${API_BASE}/admin/orders/revenue-by-day`, { headers })
+      .then(r => r.json()).then(setDay),
+
+    fetch(`${API_BASE}/admin/orders/top-products`, { headers })
+      .then(r => r.json()).then(setTop),
+
+    fetch(`${API_BASE}/admin/orders/revenue-summary`, { headers })
+      .then(r => r.json()).then(setSummary),
+
+    fetch(`${API_BASE}/admin/visitors`, { headers })
+      .then(r => r.json()).then(setVisitors),
+
+    fetch(`${API_BASE}/subscribers`, { headers })
+      .then(r => r.json()).then(setSubscribers),
   ])
-    .catch(err => console.error('Admin API error', err))
+    .catch(err => {
+      console.error('Admin API error', err);
+      toast.error('Failed loading admin data');
+    })
     .finally(() => setLoading(false));
 }, [token]);
 
 const deleteSubscriber = (id: number) => {
   if (!window.confirm('Are you sure you want to remove this subscriber?')) return;
-  fetch(`http://localhost:3000/subscribers/${id}`, {
+
+  fetch(`${API_BASE}/subscribers/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` },
   })
-    .then(r => {
-      if (r.ok) {
+    .then(res => {
+      if (res.ok) {
         setSubscribers(subs => subs.filter(s => s.id !== id));
+        toast.success('Subscriber removed');
       } else {
-        console.error('Failed to delete subscriber');
+        return res.json().then(err => {
+          console.error('Delete failed:', err);
+          toast.error(err.message || 'Failed to remove subscriber');
+        });
       }
     })
-    .catch(console.error);
+    .catch(err => {
+      console.error('Network error:', err);
+      toast.error('Network error – try again later');
+    });
 };
 
   // loading + pagination
@@ -127,19 +151,31 @@ const deleteSubscriber = (id: number) => {
   const [page,     setPage]          = useState(1);
   const totalPages                   = Math.ceil(visitors.length / ITEMS_PER_PAGE);
 
-  useEffect(() => {
-    const headers = { Authorization: `Bearer ${token}` };
+useEffect(() => {
+  const headers = { Authorization: `Bearer ${token}` };
 
-    Promise.all([
-      fetch('http://localhost:3000/admin/orders/status-count', { headers }).then(r => r.json()).then(setStatus),
-      fetch('http://localhost:3000/admin/orders/revenue-by-day',  { headers }).then(r => r.json()).then(setDay),
-      fetch('http://localhost:3000/admin/orders/top-products',      { headers }).then(r => r.json()).then(setTop),
-      fetch('http://localhost:3000/admin/orders/revenue-summary',   { headers }).then(r => r.json()).then(setSummary),
-      fetch('http://localhost:3000/admin/visitors',                { headers }).then(r => r.json()).then(setVisitors),
-    ])
-      .catch(err => console.error('Admin API error', err))
-      .finally(() => setLoading(false));
-  }, [token]);
+  Promise.all([
+    fetch(`${API_BASE}/admin/orders/status-count`, { headers })
+      .then(r => r.json()).then(setStatus),
+
+    fetch(`${API_BASE}/admin/orders/revenue-by-day`, { headers })
+      .then(r => r.json()).then(setDay),
+
+    fetch(`${API_BASE}/admin/orders/top-products`, { headers })
+      .then(r => r.json()).then(setTop),
+
+    fetch(`${API_BASE}/admin/orders/revenue-summary`, { headers })
+      .then(r => r.json()).then(setSummary),
+
+    fetch(`${API_BASE}/admin/visitors`, { headers })
+      .then(r => r.json()).then(setVisitors),
+  ])
+    .catch(err => {
+      console.error('Admin API error', err);
+      toast.error('Failed loading admin data');
+    })
+    .finally(() => setLoading(false));
+}, [token]);
 
   if (loading) {
     return <Spinner />;

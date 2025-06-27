@@ -3,6 +3,8 @@ import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import ProductCard from '../components/ProductCard';
+import { API_BASE } from '../api';
+import { toast } from 'react-toastify';
 
 /* TYPES */
 interface Product {
@@ -145,21 +147,27 @@ export default function ProductListPage() {
   const [activeCat, setCat] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
-  useEffect(() => {
-    setLoading(true);
-    fetch('http://localhost:3000/products')
-      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-      .then((data) => {
-        const clean = data.filter((p: Product) => !p.archived);
-        setAllProducts(clean);
-        setProducts(clean);
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error(e);
-        setLoading(false);
-      });
-  }, []);
+useEffect(() => {
+  setLoading(true);
+
+  fetch(`${API_BASE}/products`)
+    .then(r => {
+      if (!r.ok) return Promise.reject(r.status);
+      return r.json();
+    })
+    .then((data: Product[]) => {
+      const clean = data.filter(p => !p.archived);
+      setAllProducts(clean);
+      setProducts(clean);
+    })
+    .catch(e => {
+      console.error('Failed loading products', e);
+      toast.error('Could not load products');
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}, []);
 
 useEffect(() => {
   if (!activeCat) {

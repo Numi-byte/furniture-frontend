@@ -1,18 +1,25 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';   // ✅ CORRECT import
+// src/contexts/AuthContext.tsx
+
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { jwtDecode } from 'jwt-decode';
+import { API_BASE } from '../api';  // ← your API helper
 
 /* --- Types ---------------------------------------------------------- */
 interface UserPayload {
   id: number;
   email: string;
-  role: string;          // admin | buyer
+  role: string; // 'admin' | 'buyer'
 }
 
 interface AuthContextShape {
-  user  : UserPayload | null;
-  token : string | null;
-  /*  login now returns the decoded user  */
-  login : (email: string, password: string) => Promise<UserPayload>;
+  user: UserPayload | null;
+  token: string | null;
+  login: (email: string, password: string) => Promise<UserPayload>;
   logout: () => void;
 }
 
@@ -22,27 +29,36 @@ export const useAuth = () => useContext(AuthContext);
 
 /* --- Provider ------------------------------------------------------- */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('jwt'));
-  const [user , setUser ] = useState<UserPayload | null>(() =>
-    token ? jwtDecode<UserPayload>(token) : null
+  const [token, setToken] = useState<string | null>(
+    () => localStorage.getItem('jwt'),
+  );
+  const [user, setUser] = useState<UserPayload | null>(() =>
+    token ? jwtDecode<UserPayload>(token) : null,
   );
 
-  /* ---- LOGIN NOW RETURNS UserPayload ------------------------------ */
-  const login = async (email: string, password: string): Promise<UserPayload> => {
-    const res = await fetch('http://localhost:3000/auth/login', {
-      method : 'POST',
+  /* ---- LOGIN NOW USES API_BASE ------------------------------ */
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<UserPayload> => {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password }),
     });
-    if (!res.ok) throw new Error('Invalid credentials');
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => null);
+      throw new Error(err?.message || 'Invalid credentials');
+    }
 
     const { access_token } = await res.json();
     localStorage.setItem('jwt', access_token);
+    setToken(access_token);
 
     const decoded = jwtDecode<UserPayload>(access_token);
-    setToken(access_token);
     setUser(decoded);
-    return decoded;                             // 👉  return for callers
+    return decoded;
   };
 
   const logout = () => {
@@ -54,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /* optional: refresh profile on page reload */
   useEffect(() => {
     if (!token) return;
-    // could call /customer/me here if you need fresh data
+    // e.g. fetch(`${API_BASE}/customer/me`) ...
   }, [token]);
 
   return (
