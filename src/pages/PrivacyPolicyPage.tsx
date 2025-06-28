@@ -1,84 +1,172 @@
-import styled from 'styled-components';
+/*  src/pages/PrivacyPolicyPage.tsx
+    Casa Neuvo · Privacy Policy  ⚖️
+    – modern accordion layout, fully responsive
+----------------------------------------------------------- */
 
-const Wrapper = styled.div`
+import { useState } from 'react';
+import styled, { css } from 'styled-components';
+import { FiChevronDown } from 'react-icons/fi';
+
+// Define accent color for links
+const ACCENT = '#0070f3';
+
+/* ---------- layout shell ---------- */
+const Wrapper = styled.main`
   max-width: 1000px;
   margin: 4rem auto;
-  padding: 0 1.5rem;
-  color: var(--text-main);
-  line-height: 1.7;
+  padding: 0 1.4rem;
+  color: var(--text-main, #111);
+
+  @media (max-width: 600px) {
+    margin-top: 3rem;
+  }
 `;
 
+/* ---------- page heading ---------- */
+const Title = styled.h1`
+  font-size: clamp(2rem, 4vw + .5rem, 2.75rem);
+  font-weight: 700;
+  margin-bottom: 1.8rem;
+  text-align: center;
+`;
+
+/* ---------- accordion ---------- */
+const Section = styled.section`
+  border-bottom: 1px solid var(--gray-200, #e4e4e4);
+`;
+
+const Toggle = styled.button<{ open: boolean }>`
+  all: unset;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 1rem 0;
+  cursor: pointer;
+  color: var(--text-main, #111);
+  font-size: 1.05rem;
+  font-weight: 600;
+
+  svg {
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+    ${({ open }) => open && css`transform: rotate(180deg);`}
+  }
+`;
+
+const Panel = styled.div<{ open: boolean }>`
+  overflow: hidden;
+  max-height: ${({ open }) => (open ? '600px' : '0px')};
+  transition: max-height .45s cubic-bezier(.4,0,.2,1);
+
+  p, ul {
+    font-size: .95rem;
+    line-height: 1.7;
+    color: var(--text-sub, #555);
+  }
+  ul { padding-left: 1.2rem; margin-top: .4rem; }
+  li { margin-bottom: .4rem; }
+  p + p, ul + p { margin-top: .8rem; }
+  padding-bottom: ${({ open }) => (open ? '1.4rem' : '0')};
+`;
+
+/* ---------- helper ---------- */
+const Block = ({
+  heading,
+  children,
+}: {
+  heading: string;
+  children: React.ReactNode;
+}) => {
+  const [open, set] = useState(false);
+  return (
+    <Section>
+      <Toggle open={open} onClick={() => set(o => !o)}>
+        {heading}
+        <FiChevronDown size={22} />
+      </Toggle>
+      <Panel open={open}>{children}</Panel>
+    </Section>
+  );
+};
+
+/* ---------- page ---------- */
 export default function PrivacyPolicyPage() {
   return (
     <Wrapper>
-      <h1 style={{ fontSize: '2.4rem', fontWeight: 700, marginBottom: '1.5rem' }}>Privacy Policy</h1>
+      <Title>Privacy Policy</Title>
 
-      <p>
-        Grande&Co values your privacy. This policy describes how we collect, use, and protect your personal information.
-      </p>
+      <Block heading="1. Information we collect">
+        <ul>
+          <li><strong>Account:</strong> name, email, password, addresses.</li>
+          <li><strong>Orders:</strong> items, payment status, history.</li>
+          <li><strong>Device & Usage:</strong> IP, browser, pages, cookies.</li>
+          <li><strong>Marketing:</strong> newsletter preferences.</li>
+        </ul>
+      </Block>
 
-      <h2>1. Information We Collect</h2>
-      <ul>
-        <li><strong>Account Information:</strong> Name, email, password, shipping address, billing address.</li>
-        <li><strong>Order Data:</strong> Product details, payment status, transaction history.</li>
-        <li><strong>Device & Usage Info:</strong> IP address, browser type, pages visited, and cookies.</li>
-        <li><strong>Newsletter Subscriptions:</strong> Your email and preferences.</li>
-      </ul>
+      <Block heading="2. How we use information">
+        <ul>
+          <li>Process orders &amp; provide support.</li>
+          <li>Personalise Casa Neuvo to you.</li>
+          <li>Send updates, newsletters (opt‑out anytime).</li>
+          <li>Improve security &amp; performance.</li>
+        </ul>
+      </Block>
 
-      <h2>2. How We Use Information</h2>
-      <ul>
-        <li>To process orders and provide customer service.</li>
-        <li>To personalize your experience on Grande&Co.</li>
-        <li>To send order updates, newsletters (with opt-out), and important notices.</li>
-        <li>To improve our site’s functionality and security.</li>
-      </ul>
+      <Block heading="3. Sharing information">
+        <p>
+          We <strong>never sell</strong> your data. We share it only with:
+        </p>
+        <ul>
+          <li>Payment, shipping & email partners.</li>
+          <li>Authorities when required by law.</li>
+        </ul>
+      </Block>
 
-      <h2>3. Sharing Information</h2>
-      <p>
-        We do <strong>not</strong> sell or rent your personal data. We share it only with:
-      </p>
-      <ul>
-        <li>Trusted partners like payment processors, shipping carriers, and email service providers.</li>
-        <li>Legal authorities if required to comply with the law.</li>
-      </ul>
+      <Block heading="4. Cookies &amp; tracking">
+        <p>
+          Cookies help us sign you in securely, remember your cart and analyse
+          traffic. Manage them anytime in your browser settings.
+        </p>
+      </Block>
 
-      <h2>4. Cookies & Tracking</h2>
-      <p>
-        We use cookies and similar technologies to enhance user experience, analyze traffic, and for secure authentication.
-        You can control cookie preferences via your browser.
-      </p>
+      <Block heading="5. Your rights">
+        <ul>
+          <li>Download a copy of your data.</li>
+          <li>Correct incorrect information.</li>
+          <li>Request deletion where legally possible.</li>
+          <li>Unsubscribe from marketing.</li>
+        </ul>
+      </Block>
 
-      <h2>5. Your Rights</h2>
-      <p>
-        You have the right to:
-      </p>
-      <ul>
-        <li>Request a copy of the data we hold about you.</li>
-        <li>Request corrections to your personal data.</li>
-        <li>Request deletion of your data (where applicable).</li>
-        <li>Withdraw consent to marketing communications at any time.</li>
-      </ul>
+      <Block heading="6. Data security">
+        <p>
+          SSL, encryption at rest, & strict access controls protect your
+          information. No system is 100 % bullet‑proof – choose strong passwords
+          and monitor your account.
+        </p>
+      </Block>
 
-      <h2>6. Data Security</h2>
-      <p>
-        We use SSL encryption, access controls, and secure servers to protect your data. However, no system is 100% secure,
-        so we encourage strong passwords and vigilance.
-      </p>
+      <Block heading="7. International processing">
+        <p>
+          Casa Neuvo is operated from&nbsp;[Country]. By using our services you
+          consent to cross‑border data transfer.
+        </p>
+      </Block>
 
-      <h2>7. International Data</h2>
-      <p>
-        If you access Grande&Co outside of [Country], your data may be processed in [Country]. By using our services,
-        you consent to this transfer.
-      </p>
+      <Block heading="8. Updates">
+        <p>
+          We’ll post any privacy changes here and, if significant, notify you by
+          email. Continued use constitutes acceptance.
+        </p>
+      </Block>
 
-      <h2>8. Changes</h2>
-      <p>
-        We may update this policy. Significant changes will be highlighted on our website. Continued use of Grande&Co means
-        acceptance of updates.
-      </p>
-
-      <p style={{ marginTop: '2rem' }}>
-        For privacy concerns, contact <a href="mailto:privacy@grandeandco.com">privacy@grandeandco.com</a>.
+      <p style={{ marginTop: '2rem', fontSize: '.9rem', textAlign: 'center' }}>
+        Questions? Email&nbsp;
+        <a href="mailto:privacy@casaneuvo.com" style={{ color: ACCENT }}>
+          privacy@casaneuvo.com
+        </a>
       </p>
     </Wrapper>
   );
