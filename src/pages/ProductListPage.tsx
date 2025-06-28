@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { motion } from 'framer-motion';
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { FiChevronDown, FiChevronRight, FiMenu } from 'react-icons/fi';
 import ProductCard from '../components/ProductCard';
 import { API_BASE } from '../api';
 import { toast } from 'react-toastify';
+import { useMediaQuery } from 'react-responsive';
 
 /* TYPES */
 interface Product {
@@ -57,25 +58,38 @@ const CATALOG: Record<string, any> = {
 const Page = styled.section`
   max-width: 1280px;
   margin: 0 auto;
-  padding: 3rem 1.5rem;
+  padding: 2rem 1rem;
   display: grid;
   grid-template-columns: 260px 1fr;
-  gap: 2.5rem;
+  gap: 1.5rem;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
+    padding: 1rem 0.5rem;
+    gap: 1rem;
   }
 `;
 
-const NavWrap = styled.nav`
+const NavWrap = styled.nav<{ $mobileOpen?: boolean }>`
   border: 1px solid var(--gray-200);
   border-radius: 12px;
   background: var(--surface, #fafafa);
   padding: 1.25rem;
   height: fit-content;
+  transition: transform 0.3s ease;
 
   @media (max-width: 900px) {
-    order: 2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    border-radius: 0;
+    overflow-y: auto;
+    transform: ${({ $mobileOpen }) => 
+      $mobileOpen ? 'translateX(0)' : 'translateX(-100%)'};
+    box-shadow: 4px 0 15px rgba(0,0,0,0.1);
   }
 `;
 
@@ -85,8 +99,8 @@ const Row = styled.button<{ level: number; active: boolean }>`
   align-items: center;
   width: 100%;
   cursor: pointer;
-  padding: 0.45rem 0.4rem 0.45rem ${({ level }) => `${level * 1.25}rem`};
-  font-size: 0.95rem;
+  padding: 0.5rem 0.4rem 0.5rem ${({ level }) => `${level * 1.25}rem`};
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
   color: ${({ active }) => (active ? 'var(--accent, #111)' : 'var(--gray-700, #555)')};
   font-weight: ${({ active }) => (active ? 600 : 500)};
   &:hover {
@@ -96,12 +110,21 @@ const Row = styled.button<{ level: number; active: boolean }>`
     margin-right: 0.4rem;
     flex-shrink: 0;
   }
+
+  @media (max-width: 900px) {
+    padding: 0.6rem 0.4rem 0.6rem ${({ level }) => `${level * 1.5}rem`};
+  }
 `;
 
 const Grid = styled.div`
   display: grid;
-  gap: 2.2rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
 `;
 
 const shine = keyframes`
@@ -110,7 +133,7 @@ const shine = keyframes`
 `;
 
 const Skeleton = styled.div`
-  height: 420px;
+  height: 380px;
   border-radius: 18px;
   background: #eee;
   overflow: hidden;
@@ -123,6 +146,64 @@ const Skeleton = styled.div`
     background-size: 200px 100%;
     animation: ${shine} 1.2s infinite;
   }
+
+  @media (max-width: 600px) {
+    height: 320px;
+  }
+`;
+
+const MobileNavButton = styled.button`
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.7rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+
+  @media (max-width: 900px) {
+    display: flex;
+  }
+`;
+
+const Overlay = styled.div<{ $visible?: boolean }>`
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  pointer-events: ${({ $visible }) => ($visible ? 'all' : 'none')};
+  transition: opacity 0.3s ease;
+
+  @media (max-width: 900px) {
+    display: block;
+  }
+`;
+
+const CategoryHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  
+  @media (min-width: 901px) {
+    display: none;
+  }
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--gray-700);
 `;
 
 /* Helper: collect all leaf categories under a node */
@@ -146,55 +227,71 @@ export default function ProductListPage() {
   const [loading, setLoading] = useState(true);
   const [activeCat, setCat] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({});
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const isMobile = useMediaQuery({ maxWidth: 900 });
 
-useEffect(() => {
-  setLoading(true);
-
-  fetch(`${API_BASE}/products`)
-    .then(r => {
-      if (!r.ok) return Promise.reject(r.status);
-      return r.json();
-    })
-    .then((data: Product[]) => {
-      const clean = data.filter(p => !p.archived);
-      setAllProducts(clean);
-      setProducts(clean);
-    })
-    .catch(e => {
-      console.error('Failed loading products', e);
-      toast.error('Could not load products');
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-}, []);
-
-useEffect(() => {
-  if (!activeCat) {
-    setProducts(allProducts);
-    return;
-  }
-
-  const parts = activeCat.split(' › ');
-  let node: any = CATALOG;
-  for (const part of parts) {
-    node = node[part];
-  }
-
-  if (node === null) {
-    // It's a leaf (subsection) -> match category exactly
-    setProducts(allProducts.filter(p => p.category === parts[parts.length - 1]));
-  } else {
-    // It's a section -> if it has subsections, match all their names
-    const leafNames = Object.keys(node).filter(k => node[k] === null);
-    if (leafNames.length > 0) {
-      setProducts(allProducts.filter(p => leafNames.includes(p.category)));
-    } else {
-      // section with no subsections -> match the section name
-      setProducts(allProducts.filter(p => p.category === parts[parts.length - 1]));
+  // Close mobile nav when resizing to desktop
+  useEffect(() => {
+    if (!isMobile && mobileNavOpen) {
+      setMobileNavOpen(false);
     }
-  }
-}, [activeCat, allProducts]);
+  }, [isMobile, mobileNavOpen]);
+
+  useEffect(() => {
+    setLoading(true);
+
+    fetch(`${API_BASE}/products`)
+      .then(r => {
+        if (!r.ok) return Promise.reject(r.status);
+        return r.json();
+      })
+      .then((data: Product[]) => {
+        const clean = data.filter(p => !p.archived);
+        setAllProducts(clean);
+        setProducts(clean);
+      })
+      .catch(e => {
+        console.error('Failed loading products', e);
+        toast.error('Could not load products');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!activeCat) {
+      setProducts(allProducts);
+      return;
+    }
+
+    const parts = activeCat.split(' › ');
+    let node: any = CATALOG;
+    for (const part of parts) {
+      node = node[part];
+    }
+
+    if (node === null) {
+      // It's a leaf (subsection) -> match category exactly
+      setProducts(allProducts.filter(p => p.category === parts[parts.length - 1]));
+    } else {
+      // It's a section -> if it has subsections, match all their names
+      const leafNames = Object.keys(node).filter(k => node[k] === null);
+      if (leafNames.length > 0) {
+        setProducts(allProducts.filter(p => leafNames.includes(p.category)));
+      } else {
+        // section with no subsections -> match the section name
+        setProducts(allProducts.filter(p => p.category === parts[parts.length - 1]));
+      }
+    }
+  }, [activeCat, allProducts]);
+
+  const handleCategorySelect = (key: string) => {
+    setCat(key);
+    if (isMobile) {
+      setMobileNavOpen(false);
+    }
+  };
 
   const renderTree = (node: any, level = 0, path = '') =>
     Object.entries(node).map(([label, child]) => {
@@ -208,7 +305,7 @@ useEffect(() => {
             level={level}
             active={activeCat === key}
             onClick={() => {
-              setCat(key);
+              handleCategorySelect(key);
               if (!isLeaf) {
                 setOpen((o) => ({ ...o, [key]: !expanded }));
               }
@@ -230,11 +327,30 @@ useEffect(() => {
 
   return (
     <Page>
-      <NavWrap>
-        <h3 style={{ marginBottom: '1rem', fontWeight: 600, fontSize: '1.05rem' }}>
-          Browse categories
-        </h3>
-        <Row level={0} active={activeCat === ''} onClick={() => { setCat(''); setOpen({}); }}>
+      {/* Mobile Navigation Button */}
+      <MobileNavButton onClick={() => setMobileNavOpen(true)}>
+        <FiMenu size={20} />
+        Browse Categories
+      </MobileNavButton>
+
+      {/* Mobile Overlay */}
+      <Overlay 
+        $visible={mobileNavOpen} 
+        onClick={() => setMobileNavOpen(false)}
+      />
+
+      {/* Navigation */}
+      <NavWrap $mobileOpen={mobileNavOpen}>
+        <CategoryHeader>
+          <h3 style={{ margin: 0, fontWeight: 600, fontSize: '1.05rem' }}>
+            Browse categories
+          </h3>
+          <CloseButton onClick={() => setMobileNavOpen(false)}>
+            &times;
+          </CloseButton>
+        </CategoryHeader>
+        
+        <Row level={0} active={activeCat === ''} onClick={() => handleCategorySelect('')}>
           <span style={{ width: 16 }} /> All products
         </Row>
         {renderTree(CATALOG)}
