@@ -1,118 +1,211 @@
-import styled from 'styled-components';
+/*  src/pages/AboutPage.tsx
+    Casa Neuvo · About
+    — hero banner · story · values · atelier collage · CTA
+---------------------------------------------------------------- */
 
-const Page = styled.div`
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 3rem 1.5rem;
+import { Link } from 'react-router-dom';
+import styled, { css } from 'styled-components';
+import { motion } from 'framer-motion';
+
+/* ---------- tokens ---------- */
+const ACCENT = '#0071e3';
+const TXT    = '#111';
+const SUBTXT = '#565656';
+const GLASS  = css`
+  background: rgba(255,255,255,.67);
+  backdrop-filter: blur(8px);
 `;
 
-const HeroImage = styled.div`
-  width: 100%;
-  height: 300px;
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 2.5rem;
-  background: url('https://images.unsplash.com/photo-1581091870622-3a6b0c88b656') center/cover no-repeat;
+/* ---------- shells ---------- */
+const Page = styled.main`
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: clamp(2.5rem, 6vw, 4rem) 1.4rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4.5rem;
+`;
 
-  @media(max-width: 768px) {
-    height: 200px;
+/* ---------- hero ---------- */
+const Hero = styled.header`
+  position: relative;
+  height: clamp(240px, 45vw, 380px);
+  border-radius: 18px;
+  overflow: hidden;
+
+  &:before {                 /* overlay tint */
+    content:'';
+    position:absolute;inset:0;
+    background:linear-gradient(
+       rgba(255,255,255,.75) 0%,
+       rgba(255,255,255,.45) 60%,
+       rgba(255,255,255,.25) 100%);
+    backdrop-filter: blur(4px);
+  }
+
+  img {
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:cover;
+  }
+`;
+const HeroText = styled(motion.div)`
+  ${GLASS};
+  position: absolute;
+  left: 50%;
+  bottom: 1.6rem;
+  transform: translateX(-50%);
+  padding: .95rem 1.6rem;
+  border-radius: 12px;
+  font-size: clamp(1.4rem, 2vw + .65rem, 2rem);
+  font-weight: 700;
+  color: ${TXT};
+`;
+
+/* ---------- sections ---------- */
+const Section = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+`;
+const Title = styled.h2`
+  font-size: clamp(1.8rem, 1.4vw + 1.2rem, 2.3rem);
+  font-weight: 700;
+  color: ${ACCENT};
+`;
+const Text = styled.p`
+  font-size: clamp(1rem, .25vw + .9rem, 1.1rem);
+  line-height: 1.8;
+  color: ${SUBTXT};
+`;
+
+/* ---------- values grid ---------- */
+const ValuesGrid = styled.div`
+  display:grid;
+  gap: 1.7rem;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+`;
+const ValueCard = styled(motion.div)`
+  ${GLASS};
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+  padding: 1.6rem 1.4rem;
+  backdrop-filter: blur(8px);
+
+  h3 { margin-bottom: .55rem; font-size: 1.05rem; }
+  p  { font-size: .92rem; line-height: 1.55; color:${SUBTXT}; }
+`;
+
+/* ---------- atelier collage ---------- */
+const Collage = styled.div`
+  display:grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+
+  img{
+    width:100%;height:200px;object-fit:cover;border-radius:14px;
+    transition: transform .35s ease;
+  }
+  img:hover{ transform: scale(1.05);}
+`;
+
+/* ---------- CTA ---------- */
+const CTA = styled(Link)`
+  align-self: center;
+  margin-top: 1rem;
+  background: ${ACCENT};
+  color:#fff;
+  padding: 1rem 3.2rem;
+  border-radius: 32px;
+  font-weight:600;
+  font-size: 1.15rem;
+  transition: transform .25s, box-shadow .25s;
+
+  &:hover{
+    transform: translateY(-3px);
+    box-shadow:0 10px 22px rgb(0 0 0 /.15);
+  }
+  @media(max-width:480px){
+    width:100%;text-align:center;
   }
 `;
 
-const Section = styled.section`
-  margin-bottom: 3rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--accent);
-`;
-
-const Text = styled.p`
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: var(--gray-700);
-`;
-
-const ValuesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-  gap: 1.5rem;
-`;
-
-const ValueBox = styled.div`
-  background: var(--surface);
-  padding: 1.5rem;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-`;
-
-const CTA = styled.div`
-  background: var(--accent);
-  color: #fff;
-  text-align: center;
-  padding: 2rem;
-  border-radius: var(--radius);
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-top: 3rem;
-`;
-
+/* ---------- page ---------- */
 export default function AboutPage() {
   return (
     <Page>
-      <HeroImage />
 
+      {/* hero */}
+      <Hero>
+        <img
+          src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=2100&q=80"
+          alt="Casa Neuvo atelier"
+          loading="lazy"
+        />
+        <HeroText
+          initial={{ opacity:0, y:20 }}
+          animate={{ opacity:1, y:0 }}
+          transition={{ duration:.8 }}
+        >
+          Timeless design — Italian heart
+        </HeroText>
+      </Hero>
+
+      {/* story */}
       <Section>
-        <Title>Our Story</Title>
+        <Title>Our story</Title>
         <Text>
-          Grande&amp;Co is more than a furniture brand — we’re a design philosophy. Our mission is to bring elegance,
-          functionality, and sustainability to your living spaces. Every piece is crafted with passion, precision, and
-          purpose, ensuring it complements modern lifestyles while standing the test of time.
+          Casa Neuvo is more than a furniture label&mdash;it’s a philosophy.
+          Born in the ateliers of Lombardy, we marry
+          traditional joinery with 21‑century engineering to craft pieces
+          that live for generations, not seasons.
         </Text>
       </Section>
 
+      {/* values */}
       <Section>
-        <Title>What we believe in</Title>
+        <Title>What we stand for</Title>
+
         <ValuesGrid>
-          <ValueBox>
-            <h3>🌱 Sustainability</h3>
-            <p>We source materials responsibly and focus on eco-friendly production methods to protect our planet.</p>
-          </ValueBox>
-          <ValueBox>
-            <h3>🎨 Design Excellence</h3>
-            <p>Our pieces combine timeless aesthetics with modern innovation for furniture that inspires.</p>
-          </ValueBox>
-          <ValueBox>
-            <h3>🤝 Customer First</h3>
-            <p>From design to delivery, we prioritize your satisfaction with unmatched care and service.</p>
-          </ValueBox>
+          {[
+            {icon:'🌱', title:'Sustainability',
+              txt:'Responsibly‑harvested wood & plastic‑free packaging.'},
+            {icon:'🎨', title:'Design Excellence',
+              txt:'Minimal lines, honest materials, human scale.'},
+            {icon:'🛠️', title:'Craftsmanship',
+              txt:'Hand‑finished by artisans with decades of know‑how.'},
+          ].map(v=>(
+            <ValueCard
+              key={v.title}
+              whileHover={{ y:-6, boxShadow:'0 8px 18px rgba(0,0,0,.08)' }}
+              transition={{ type:'spring',stiffness:260,damping:22 }}
+            >
+              <h3>{v.icon} {v.title}</h3>
+              <p>{v.txt}</p>
+            </ValueCard>
+          ))}
         </ValuesGrid>
       </Section>
 
+      {/* atelier images */}
       <Section>
-        <Title>Behind the scenes</Title>
-        <div style={{position:'relative',paddingBottom:'56.25%',height:0,overflow:'hidden',borderRadius:'12px'}}>
-          <iframe
-            src="https://www.youtube.com/embed/0fKg7e37bQE"
-            title="Grande & Co Behind the Scenes"
-            style={{
-              position: 'absolute',
-              top:0,left:0,
-              width:'100%',
-              height:'100%',
-              border:0
-            }}
-            allowFullScreen
-          />
-        </div>
+        <Title>Inside our atelier</Title>
+        <Collage>
+          {[
+            'https://images.unsplash.com/photo-1555041469-a586c61ea9bc',
+            'https://images.unsplash.com/photo-1503387762-592deb58ef4e',
+            'https://images.unsplash.com/photo-1470093851219-69951fcbb533',
+            'https://unsplash.com/photos/vbxyFxlgpjM/download?ixid=M3wxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNzUxMTE3MjY1fA&force=true',
+          ].map((src,i)=>(
+            <img key={i} src={`${src}?auto=format&fit=crop&w=800&q=70`} loading="lazy"
+                 alt="Casa Neuvo workshop"/>
+          ))}
+        </Collage>
       </Section>
 
-      <CTA>
-        Ready to elevate your space? <br />
-        <a href="/products" style={{ color:'#fff', textDecoration:'underline' }}>Shop now</a>
+      {/* call‑to‑action */}
+      <CTA to="/products">
+        Discover the collection
       </CTA>
     </Page>
   );
