@@ -196,11 +196,11 @@ export default function ContactPage() {
           <Card>
             <H2>Contact details</H2>
             <P style={{margin:'1rem 0'}}>
-              Grande&Co<br/>
+              Casa Neuvo<br/>
               123 Elegance Ave<br/>
               Milano · Italy<br/><br/>
               Phone  +39 02 1234 5678<br/>
-              Email  support@grandeandco.com
+              Email  support@casaneuvo.com
             </P>
             {/* Lazy Map */}
             <MapPlaceholder as="div" ref={mapRef as any}>
@@ -209,7 +209,7 @@ export default function ContactPage() {
                 ref={mapRef}
                 loading="lazy"
                 style={{width:'100%',height:'100%',border:0,borderRadius:8}}
-                title="Grande&Co HQ"
+                title="Casa Neuvo HQ"
               />
             </MapPlaceholder>
           </Card>
