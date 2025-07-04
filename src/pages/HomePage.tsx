@@ -230,28 +230,43 @@ export default function HomePage() {
       )}
 
       {/* VALUES */}
-      <Values>
-        <Grid>
-          {[
-            { icon:'🪵', title:'Natural materials',
-              txt:'Solid oak, walnut & Italian leather.'},
-            { icon:'🛠️', title:'Craftsmanship',
-              txt:'Each piece hand‑finished in Lombardy.'},
-            { icon:'♻️', title:'Circular design',
-              txt:'Built to be repaired, reused and loved.'},
-          ].map(v => (
-            <Card
-              key={v.title}
-              whileHover={{ y: -6, boxShadow: '0 12px 22px rgba(0,0,0,.06)' }}
-              transition={{ type:'spring', stiffness:260, damping:22 }}
-            >
-              <div style={{ fontSize:'2.35rem' }}>{v.icon}</div>
-              <h3>{v.title}</h3>
-              <p>{v.txt}</p>
-            </Card>
-          ))}
-        </Grid>
-      </Values>
+<Values>
+  <Grid>
+    {[
+      {
+        icon: '🔩',
+        title: 'Metal mastery',
+        txt: 'Brass, aluminium & steel specialists.'
+      },
+      {
+        icon: '🛠️',
+        title: 'Crafting excellence since 2000',
+        txt: 'Over two decades of hand‑finished quality.'
+      },
+      {
+        icon: '🎨',
+        title: 'In‑house design',
+        txt: 'Every piece imagined and refined by our studio.'
+      },
+      {
+        icon: '🌍',
+        title: 'Worldwide shipping',
+        txt: 'Bulk or single orders delivered globally.'
+      }
+    ].map((v) => (
+      <Card
+        key={v.title}
+        whileHover={{ y: -6, boxShadow: '0 12px 22px rgba(0,0,0,.06)' }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+      >
+        <div style={{ fontSize: '2.35rem' }}>{v.icon}</div>
+        <h3>{v.title}</h3>
+        <p>{v.txt}</p>
+      </Card>
+    ))}
+  </Grid>
+</Values>
+
 
       {/* sentinel for lazy newsletter */}
       <div ref={sentryRef} />
