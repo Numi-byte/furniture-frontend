@@ -1,129 +1,156 @@
+
 import { Link } from 'react-router-dom';
 import { useRef } from 'react';
 import styled from 'styled-components';
 
+/* —— types —— */
 interface Product {
-  id: number;
-  title: string;
-  price: number;
+  id:        number;
+  title:     string;
+  price:     number;
   description: string;
-  imageUrl: string;
-  category: string; // ✅ added category
+  imageUrl:  string;
+  category:  string;
 }
+interface Props { product: Product }
 
-interface Props {
-  product: Product;
-}
+/* —— styling tokens —— */
+const gold     = '#c9a14a';
+const accent   = '#0071e3';
+const txtMain  = '#222';
+const txtSub   = '#666';
+const bgCard   = '#fff';
 
-const Card = styled.div`
-  perspective: 900px;
-  border-radius: 16px;
-  overflow: hidden;
-`;
-
-const Inner = styled.div`
-  background: #fff;
-  border-radius: inherit;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform-style: preserve-3d;
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  }
-`;
-
-const Img = styled.img`
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  display: block;
-`;
-
-const Body = styled.div`
-  padding: 1rem 1.5rem 1.5rem;
+/* —— card shell —— */
+const Card = styled.article`
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-`;
-
-const Category = styled.div`
-  font-size: 0.75rem;
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-`;
-
-const Title = styled.h3`
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #222;
-  margin: 0;
-`;
-
-const Price = styled.div`
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #c9a14a;
-`;
-
-const Desc = styled.p`
-  font-size: 0.9rem;
-  color: #666;
-  line-height: 1.5;
-  flex: 1;
-  margin: 0;
-`;
-
-const DetailLink = styled(Link)`
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: #c9a14a;
-  color: #fff;
-  font-size: 0.85rem;
-  font-weight: 500;
-  border-radius: 6px;
-  text-decoration: none;
-  text-align: center;
-  transition: background 0.25s ease;
+  background: ${bgCard};
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow .25s, transform .25s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.05);
 
   &:hover {
-    background: #b48f3f;
+    box-shadow: 0 8px 22px rgba(0,0,0,.12);
+    transform: translateY(-2px);
   }
 `;
 
+/* —— image —— */
+const ImgWrap = styled(Link)`
+  display: block;
+  aspect-ratio: 3/2;
+  background: #fafafa;        /* subtle placeholder bg */
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity .35s;
+  }
+
+  ${Card}:hover & img { opacity: .92; }
+`;
+
+/* —— body —— */
+const Body = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.2rem 1.4rem;
+  gap: .55rem;
+  flex: 1;
+`;
+
+/* —— text bits —— */
+const Cat  = styled.span`
+  font-size: .72rem;
+  color: ${txtSub};
+  letter-spacing: .05em;
+  text-transform: uppercase;
+`;
+const Title = styled.h3`
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${txtMain};
+  line-height: 1.35;
+  min-height: 2.7em;          /* 2 lines reserve */
+  overflow: hidden;           /* clamp effect */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+`;
+const Price = styled.div`
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: ${gold};
+`;
+const Blurb = styled.p`
+  font-size: .85rem;
+  color: ${txtSub};
+  line-height: 1.45;
+  max-height: 2.9em;          /* ~2 lines */
+  overflow: hidden;
+  margin: .3rem 0 0;
+`;
+
+/* —— CTA —— */
+const BuyLink = styled(Link)`
+  margin-top: auto;           /* sticks to bottom */
+  align-self: flex-start;
+  padding: .55rem 1.1rem;
+  background: ${accent};
+  color: #fff;
+  border-radius: 6px;
+  font-size: .83rem;
+  font-weight: 600;
+  transition: background .25s, transform .25s;
+
+  &:hover { background: #055dc4; }
+  &:active { transform: scale(.96); }
+`;
+
+/* —— tilt on desktop only —— */
+const Wrapper = styled.div`
+  perspective: 800px;
+
+  @media (max-width: 900px) {
+    perspective: none;         /* disables tilt on touch devices */
+  }
+`;
+
+/* ========================================================= */
 export default function ProductCard({ product }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+  const inner = useRef<HTMLDivElement>(null);
 
+  /* gentle tilt */
   const tilt = (e: React.MouseEvent) => {
-    const el = ref.current!;
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width - 0.5;
-    const y = (e.clientY - r.top) / r.height - 0.5;
-    el.style.transform = `rotateX(${ -y * 4 }deg) rotateY(${ x * 4 }deg)`;
+    const el = inner.current;
+    if (!el) return;
+    const r  = el.getBoundingClientRect();
+    const x  = (e.clientX - r.left) / r.width  - 0.5;
+    const y  = (e.clientY - r.top)  / r.height - 0.5;
+    el.style.transform = `rotateX(${-y * 5}deg) rotateY(${x * 5}deg)`;
   };
-
-  const reset = () => {
-    if (ref.current) ref.current.style.transform = 'rotateX(0) rotateY(0)';
-  };
+  const reset = () => inner.current && (inner.current.style.transform = '');
 
   return (
-    <Card onMouseMove={tilt} onMouseLeave={reset}>
-      <Inner ref={ref}>
-        <Link to={`/products/${product.id}`}>
-          <Img src={product.imageUrl} alt={product.title} />
-        </Link>
+    <Wrapper onMouseMove={tilt} onMouseLeave={reset}>
+      <Card ref={inner}>
+        <ImgWrap to={`/products/${product.id}`}>
+          <img src={product.imageUrl} alt={product.title} loading="lazy" />
+        </ImgWrap>
+
         <Body>
-          <Category>{product.category}</Category>
+          <Cat>{product.category}</Cat>
           <Title>{product.title}</Title>
           <Price>€{product.price.toFixed(2)}</Price>
-          <Desc>{product.description}</Desc>
-          <DetailLink to={`/products/${product.id}`}>View details →</DetailLink>
+          <Blurb>{product.description}</Blurb>
+
+          <BuyLink to={`/products/${product.id}`}>View&nbsp;details</BuyLink>
         </Body>
-      </Inner>
-    </Card>
+      </Card>
+    </Wrapper>
   );
 }
